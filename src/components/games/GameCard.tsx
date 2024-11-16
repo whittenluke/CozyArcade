@@ -1,16 +1,10 @@
 import { Link } from 'react-router-dom';
 import { Trophy, Users } from 'lucide-react';
+import type { Game } from '../../types/database';
 
-interface GameCardProps {
-  id: string;
-  title: string;
-  description: string;
-  imageUrl: string;
-  playCount: number;
-  highScore: number;
-}
+type GameCardProps = Game;
 
-export default function GameCard({ id, title, description, imageUrl, playCount, highScore }: GameCardProps) {
+export default function GameCard({ id, title, description, imageUrl, stats }: GameCardProps) {
   return (
     <Link to={`/games/${id}`} className="group">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition hover:shadow-md">
@@ -31,11 +25,11 @@ export default function GameCard({ id, title, description, imageUrl, playCount, 
           <div className="mt-4 flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
             <div className="flex items-center gap-1">
               <Users className="w-4 h-4" />
-              <span>{playCount}</span>
+              <span>{stats.totalPlays}</span>
             </div>
             <div className="flex items-center gap-1">
               <Trophy className="w-4 h-4" />
-              <span>{highScore}</span>
+              <span>{stats.highScore}</span>
             </div>
           </div>
         </div>

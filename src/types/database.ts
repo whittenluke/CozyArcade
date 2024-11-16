@@ -15,6 +15,7 @@ interface Game {
   title: string;
   description: string;
   type: 'tetris' | 'snake' | 'match3';
+  imageUrl: string;
   config: {
     gridSize?: number;
     speed?: number;

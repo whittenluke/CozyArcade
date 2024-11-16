@@ -8,11 +8,10 @@ import {
   query, 
   where,
   orderBy,
-  limit,
-  DocumentData
+  limit
 } from 'firebase/firestore';
 import { db } from './firebase';
-import type { Game, GameSession, UserProfile } from '../types/database';
+import type { Game, GameSession } from '../types/database';
 
 // Games API
 export const gamesApi = {
