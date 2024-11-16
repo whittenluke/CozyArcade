@@ -1,33 +1,32 @@
+import { useGames } from '../hooks/useGames';
 import GameCard from '../components/games/GameCard';
-
-const FEATURED_GAMES = [
-  {
-    id: 'tetris',
-    title: 'Cozy Tetris',
-    description: 'A relaxing take on the classic block-stacking puzzle game.',
-    imageUrl: 'https://images.unsplash.com/photo-1642068131592-d8b8c3cd0f3b?auto=format&fit=crop&q=80',
-    playCount: 1234,
-    highScore: 99999,
-  },
-  {
-    id: 'snake',
-    title: 'Gentle Snake',
-    description: 'Guide your snake through a peaceful garden, collecting fruits at your own pace.',
-    imageUrl: 'https://images.unsplash.com/photo-1628277613967-6abca504d0ac?auto=format&fit=crop&q=80',
-    playCount: 987,
-    highScore: 5000,
-  },
-  {
-    id: 'match3',
-    title: 'Calm Match',
-    description: 'Match colorful gems in this soothing puzzle experience.',
-    imageUrl: 'https://images.unsplash.com/photo-1611996575749-79a3a250f948?auto=format&fit=crop&q=80',
-    playCount: 2468,
-    highScore: 75000,
-  },
-];
+import { Loader2 } from 'lucide-react';
 
 export default function Games() {
+  const { games, loading, error } = useGames();
+
+  if (loading) {
+    return (
+      <div className="py-32 dark:bg-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-center">
+          <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="py-32 dark:bg-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center text-red-600">
+            Failed to load games. Please try again later.
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="py-32 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -38,11 +37,17 @@ export default function Games() {
           </p>
         </div>
 
-        <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {FEATURED_GAMES.map((game) => (
-            <GameCard key={game.id} {...game} />
-          ))}
-        </div>
+        {games.length === 0 ? (
+          <div className="mt-12 text-center text-gray-600 dark:text-gray-400">
+            No games available yet. Check back soon!
+          </div>
+        ) : (
+          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {games.map((game) => (
+              <GameCard key={game.id} {...game} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
