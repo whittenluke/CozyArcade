@@ -29,11 +29,11 @@ const FEATURED_GAMES = [
 
 export default function Games() {
   return (
-    <div className="py-32">
+    <div className="py-32 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Featured Games</h1>
-          <p className="mt-4 text-gray-600">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Featured Games</h1>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">
             Choose from our collection of relaxing games
           </p>
         </div>
