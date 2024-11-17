@@ -1,5 +1,5 @@
 import { BOARD_WIDTH, BOARD_HEIGHT, SPAWN_POSITION, POINTS } from './constants';
-import type { Piece, PieceType } from './pieces';
+import type { Piece } from './pieces';
 import { createPiece, getRandomPiece } from './pieces';
 import { checkCollision, getCompletedRows, clearRows, isGameOver } from './collision';
 import { rotatePiece } from './rotation';
