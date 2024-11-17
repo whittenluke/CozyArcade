@@ -1,7 +1,7 @@
 import { BOARD_WIDTH, BOARD_HEIGHT, INITIAL_POSITION, POINTS, SPEEDS, Direction, GameState } from './constants';
 
 // Types
-interface Position {
+export interface Position {
   x: number;
   y: number;
 }
