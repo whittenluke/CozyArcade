@@ -13,15 +13,30 @@ import { useGameLoop } from './useGameLoop';
 export function useGameState() {
   const [gameState, setGameState] = useState<GameStateType>(initializeGame());
   const [isPaused, setIsPaused] = useState(false);
+  const [countdown, setCountdown] = useState(0);
   const { user } = useAuth();
 
   // Reset game
   const startGame = useCallback(() => {
-    setGameState(() => ({
-      ...initializeGame(),
-      state: GameState.PLAYING
-    }));
+    setGameState(() => initializeGame());
     setIsPaused(false);
+    setCountdown(0);
+  }, []);
+
+  // Start countdown and game
+  const handleStartGame = useCallback(() => {
+    setCountdown(3);
+    
+    const countdownInterval = setInterval(() => {
+      setCountdown(current => {
+        if (current <= 1) {
+          clearInterval(countdownInterval);
+          setGameState(state => ({ ...state, state: GameState.PLAYING }));
+          return 0;
+        }
+        return current - 1;
+      });
+    }, 1000);
   }, []);
 
   // Handle direction changes
@@ -78,7 +93,9 @@ export function useGameState() {
   return {
     ...gameState,
     isPaused,
+    countdown,
     startGame,
+    handleStartGame,
     togglePause
   };
 }

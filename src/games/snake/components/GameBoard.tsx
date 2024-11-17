@@ -1,5 +1,5 @@
 import { RefreshCw } from 'lucide-react';
-import { BOARD_WIDTH, BOARD_HEIGHT } from '../core/constants';
+import { BOARD_WIDTH, BOARD_HEIGHT, GameState } from '../core/constants';
 import type { Position } from '../core/gameLogic';
 import type { Direction } from '../core/constants';
 
@@ -33,7 +33,10 @@ interface GameBoardProps {
   food: Position;
   isPaused: boolean;
   isGameOver: boolean;
+  state: GameState;
+  countdown: number;
   onRestart: () => void;
+  onStartGame: () => void;
 }
 
 export default function GameBoard({ 
@@ -42,7 +45,10 @@ export default function GameBoard({
   food, 
   isPaused, 
   isGameOver,
-  onRestart 
+  state,
+  countdown,
+  onRestart,
+  onStartGame
 }: GameBoardProps) {
   // Helper to determine head rotation based on direction
   const getHeadRotation = (direction: Direction) => {
@@ -92,7 +98,7 @@ export default function GameBoard({
       }}
     >
       <div 
-        className="grid gap-px bg-gray-900/20"
+        className="grid gap-[1px] bg-gray-900/10"
         style={{
           gridTemplateColumns: `repeat(${BOARD_WIDTH}, minmax(0, 1fr))`,
           aspectRatio: `${BOARD_WIDTH}/${BOARD_HEIGHT}`
@@ -114,6 +120,27 @@ export default function GameBoard({
           ))
         )}
       </div>
+
+      {/* Start Game / Countdown Overlay */}
+      {state === GameState.READY && (
+        <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center">
+          <button
+            onClick={onStartGame}
+            className="px-8 py-3 bg-purple-600 text-white rounded-full font-medium hover:bg-purple-700 transition"
+          >
+            Start Game
+          </button>
+        </div>
+      )}
+
+      {/* Countdown Overlay */}
+      {countdown > 0 && (
+        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+          <div className="text-6xl font-bold text-white animate-pulse">
+            {countdown}
+          </div>
+        </div>
+      )}
 
       {/* Overlay states */}
       {(isPaused || isGameOver) && (

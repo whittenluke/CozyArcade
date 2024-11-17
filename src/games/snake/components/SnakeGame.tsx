@@ -12,10 +12,12 @@ export default function SnakeGame() {
     speed,
     state,
     isPaused,
-    startGame
+    countdown,
+    startGame,
+    handleStartGame
   } = useGameState();
 
-  // Start new game on mount
+  // Remove auto-start effect
   useEffect(() => {
     startGame();
   }, []);
@@ -47,7 +49,10 @@ export default function SnakeGame() {
                 food={food}
                 isPaused={isPaused}
                 isGameOver={state === 'gameOver'}
+                state={state}
+                countdown={countdown}
                 onRestart={startGame}
+                onStartGame={handleStartGame}
               />
             </div>
 
