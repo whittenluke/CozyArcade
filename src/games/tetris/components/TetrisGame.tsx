@@ -43,38 +43,40 @@ export default function TetrisGame() {
           <p className="mt-2 text-gray-400">Use arrow keys or WASD to play</p>
         </div>
 
-        <div className="flex justify-center gap-8">
-          {/* Left side - Hold piece */}
-          <div className="w-32">
-            <PiecePreview piece={holdPiece} label="Hold" />
-          </div>
+        <div className="max-w-[600px] mx-auto">
+          <div className="flex justify-center gap-4 sm:gap-8">
+            {/* Left side - Hold piece */}
+            <div className="w-[80px] sm:w-32 shrink-0">
+              <PiecePreview piece={holdPiece} label="Hold" />
+            </div>
 
-          {/* Center - Game board */}
-          <div className="w-[320px]">
-            <GameBoard
-              board={board}
-              boardColors={boardColors}
-              currentPiece={currentPiece}
-              currentPosition={currentPosition}
-              isPaused={isPaused}
-              isGameOver={isGameOver}
-              onRestart={startGame}
-            />
-          </div>
+            {/* Center - Game board */}
+            <div className="w-[240px] sm:w-[320px] shrink-0">
+              <GameBoard
+                board={board}
+                boardColors={boardColors}
+                currentPiece={currentPiece}
+                currentPosition={currentPosition}
+                isPaused={isPaused}
+                isGameOver={isGameOver}
+                onRestart={startGame}
+              />
+            </div>
 
-          {/* Right side - Score and next piece */}
-          <div className="w-32 space-y-4">
-            <ScorePanel
-              score={score}
-              level={level}
-              lines={lines}
-            />
-            <PiecePreview piece={nextPiece} label="Next" />
+            {/* Right side - Score and next piece */}
+            <div className="w-[80px] sm:w-32 shrink-0 space-y-4">
+              <ScorePanel
+                score={score}
+                level={level}
+                lines={lines}
+              />
+              <PiecePreview piece={nextPiece} label="Next" />
+            </div>
           </div>
         </div>
 
-        {/* Controls help */}
-        <div className="mt-8 text-center text-gray-400 text-sm">
+        {/* Controls help - Make it scroll horizontally on mobile if needed */}
+        <div className="mt-8 text-center text-gray-400 text-sm overflow-x-auto whitespace-nowrap">
           <p>↑/W: Rotate • ←/A: Move Left • →/D: Move Right • ↓/S: Soft Drop</p>
           <p className="mt-1">Space: Hard Drop • C: Hold • P/Esc: Pause</p>
         </div>

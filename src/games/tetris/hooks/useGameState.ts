@@ -3,7 +3,7 @@ import { GameState, initializeGame, movePiece, rotate, moveDown, holdPiece } fro
 import { useGameLoop } from './useGameLoop';
 import { useInput } from './useInput';
 import { useAuth } from '../../../contexts/AuthContext';
-import { gameSessionsApi } from '../../../lib/api';
+import { tetrisApi } from '../../../lib/api';
 import { CONTROLS } from '../core/constants';
 
 export function useGameState() {
@@ -77,18 +77,28 @@ export function useGameState() {
   // Save high score when game ends
   useEffect(() => {
     if (gameState.isGameOver && user) {
-      gameSessionsApi.create({
-        gameId: 'tetris',
-        userId: user.uid,
-        startedAt: new Date().toISOString(),
+      console.log('Attempting to save score:', {
         score: gameState.score,
-        state: {
-          level: gameState.level,
-          lines: gameState.lines
+        user: user.uid,
+        username: user.displayName
+      });
+      
+      tetrisApi.saveHighScore({
+        userId: user.uid,
+        username: user.displayName || 'Anonymous',
+        score: gameState.score,
+        level: gameState.level,
+        lines: gameState.lines,
+        timestamp: new Date().toISOString()
+      }).then(([result, error]) => {
+        if (error) {
+          console.error('Failed to save score:', error);
+        } else if (result) {
+          console.log('Score saved successfully');
         }
       });
     }
-  }, [gameState.isGameOver, gameState.score, user]);
+  }, [gameState.isGameOver, user, gameState.score, gameState.level, gameState.lines]);
 
   return {
     ...gameState,

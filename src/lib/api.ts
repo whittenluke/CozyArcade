@@ -8,10 +8,10 @@ import {
   query, 
   where,
   orderBy,
-  limit
+  limit as firestoreLimit
 } from 'firebase/firestore';
 import { db } from './firebase';
-import type { Game, GameSession } from '../types/database';
+import type { Game, GameSession, TetrisHighScore } from '../types/database';
 
 const TEST_GAMES: Game[] = [
   {
@@ -72,7 +72,7 @@ export const gamesApi = {
 
   async getTopGames(limitCount: number = 10): Promise<Game[]> {
     const gamesRef = collection(db, 'games');
-    const q = query(gamesRef, orderBy('stats.totalPlays', 'desc'), limit(limitCount));
+    const q = query(gamesRef, orderBy('stats.totalPlays', 'desc'), firestoreLimit(limitCount));
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Game));
   }
@@ -100,6 +100,47 @@ export const gameSessionsApi = {
     const q = query(sessionsRef, where('userId', '==', userId));
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as GameSession));
+  }
+};
+
+// Tetris API
+export const tetrisApi = {
+  saveHighScore: async (score: TetrisHighScore) => {
+    try {
+      const scoresRef = collection(db, 'tetris-scores');
+      const newScoreRef = doc(scoresRef);
+      await setDoc(newScoreRef, {
+        ...score,
+        timestamp: new Date().toISOString()
+      });
+      console.log('Score saved successfully:', score);
+      return [true, null] as const;
+    } catch (error) {
+      console.error('Error saving score:', error);
+      return [null, error] as const;
+    }
+  },
+
+  getHighScores: async (limit = 10) => {
+    try {
+      const scoresRef = collection(db, 'tetris-scores');
+      const q = query(
+        scoresRef,
+        orderBy('score', 'desc'),
+        firestoreLimit(limit)
+      );
+      
+      const snapshot = await getDocs(q);
+      const scores = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as (TetrisHighScore & { id: string })[];
+      
+      return [scores, null] as const;
+    } catch (error) {
+      console.error('Error getting high scores:', error);
+      return [null, error] as const;
+    }
   }
 };
 

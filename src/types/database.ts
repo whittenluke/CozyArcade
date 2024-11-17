@@ -38,4 +38,14 @@ interface GameSession {
   state: Record<string, any>;
 }
 
-export type { UserProfile, Game, GameSession }; 
+// Add this interface
+interface TetrisHighScore {
+  userId: string;
+  username: string;
+  score: number;
+  level: number;
+  lines: number;
+  timestamp: string;
+}
+
+export type { UserProfile, Game, GameSession, TetrisHighScore }; 
