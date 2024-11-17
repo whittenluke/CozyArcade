@@ -39,6 +39,32 @@ interface GameBoardProps {
   onStartGame: () => void;
 }
 
+function getSegmentStyle(snake: Position[], index: number) {
+  if (index === 0) return ''; // Head has its own styling
+
+  const prev = snake[index - 1];
+  const curr = snake[index];
+  const next = snake[index + 1];
+
+  // Calculate which directions have connections
+  const connections = {
+    top: prev && (prev.y < curr.y || (prev.y === BOARD_HEIGHT - 1 && curr.y === 0)),
+    right: prev && (prev.x > curr.x || (prev.x === 0 && curr.x === BOARD_WIDTH - 1)),
+    bottom: prev && (prev.y > curr.y || (prev.y === 0 && curr.y === BOARD_HEIGHT - 1)),
+    left: prev && (prev.x < curr.x || (prev.x === BOARD_WIDTH - 1 && curr.x === 0)),
+  };
+
+  if (next) {
+    if (next.y < curr.y || (next.y === BOARD_HEIGHT - 1 && curr.y === 0)) connections.top = true;
+    if (next.x > curr.x || (next.x === 0 && curr.x === BOARD_WIDTH - 1)) connections.right = true;
+    if (next.y > curr.y || (next.y === 0 && curr.y === BOARD_HEIGHT - 1)) connections.bottom = true;
+    if (next.x < curr.x || (next.x === BOARD_WIDTH - 1 && curr.x === 0)) connections.left = true;
+  }
+
+  // Simplified segment styling - remove size modifications
+  return 'rounded-sm';
+}
+
 export default function GameBoard({ 
   snake, 
   snakeDirection,
@@ -71,10 +97,19 @@ export default function GameBoard({
         ${getHeadRotation(snakeDirection)}
       `;
     }
+
     // Check if cell is snake body
-    if (snake.slice(1).some(segment => segment.x === x && segment.y === y)) {
-      return "bg-green-500 rounded-sm border border-green-400";
+    const bodyIndex = snake.findIndex((segment, i) => i > 0 && segment.x === x && segment.y === y);
+    if (bodyIndex !== -1) {
+      return `
+        bg-green-500
+        border border-green-400/50
+        shadow-inner
+        transition-all duration-100
+        ${getSegmentStyle(snake, bodyIndex)}
+      `;
     }
+
     // Check if cell is food
     if (food.x === x && food.y === y) {
       return `
@@ -82,6 +117,7 @@ export default function GameBoard({
         animate-pulse
       `;
     }
+
     // Empty cell
     return "bg-gray-800";
   };
@@ -98,10 +134,11 @@ export default function GameBoard({
       }}
     >
       <div 
-        className="grid gap-[1px] bg-gray-900/10"
+        className="grid gap-0 bg-gray-900/10"
         style={{
           gridTemplateColumns: `repeat(${BOARD_WIDTH}, minmax(0, 1fr))`,
-          aspectRatio: `${BOARD_WIDTH}/${BOARD_HEIGHT}`
+          aspectRatio: `${BOARD_WIDTH}/${BOARD_HEIGHT}`,
+          isolation: 'isolate'
         }}
       >
         {Array.from({ length: BOARD_HEIGHT }, (_, y) =>
@@ -111,8 +148,9 @@ export default function GameBoard({
               className={`
                 aspect-square
                 relative
+                border-[0.5px] border-gray-900/10
                 ${getCellContent(x, y)}
-                transition-all duration-100
+                transform-gpu
               `}
             >
               {isHead(x, y) && <SnakeHead />}
