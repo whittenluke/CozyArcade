@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
-import { GameState, Direction } from '../core/constants';
+import { GameState, Direction, SPEEDS } from '../core/constants';
 import { 
   initializeGame, 
   moveSnake, 
@@ -9,6 +9,8 @@ import {
 } from '../core/gameLogic';
 import { useInput } from './useInput';
 import { useGameLoop } from './useGameLoop';
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from '../../../lib/firebase';
 
 export function useGameState() {
   const [gameState, setGameState] = useState<GameStateType>(initializeGame());
@@ -85,10 +87,25 @@ export function useGameState() {
   // Save high score when game ends
   useEffect(() => {
     if (gameState.state === GameState.GAME_OVER && user) {
-      // TODO: Implement high score saving
-      console.log('Game Over - Score:', gameState.score);
+      const saveScore = async () => {
+        try {
+          await addDoc(collection(db, 'snake-scores'), {
+            userId: user.uid,
+            username: user.displayName || 'Anonymous',
+            score: gameState.score,
+            level: Math.floor((SPEEDS.INITIAL - gameState.speed) / SPEEDS.SPEED_DECREASE),
+            length: gameState.snake.body.length,
+            timestamp: new Date().toISOString()
+          });
+          console.log('Score saved successfully');
+        } catch (error) {
+          console.error('Error saving score:', error);
+        }
+      };
+
+      saveScore();
     }
-  }, [gameState.state, gameState.score, user]);
+  }, [gameState.state, gameState.score, user, gameState.speed, gameState.snake.body.length]);
 
   return {
     ...gameState,
