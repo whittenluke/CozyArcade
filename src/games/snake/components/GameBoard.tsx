@@ -9,20 +9,22 @@ function SnakeHead() {
     <svg
       viewBox="0 0 100 100"
       className="absolute inset-0 w-full h-full"
-      fill="currentColor"
     >
-      {/* Main head shape */}
+      {/* Main head shape - fills the entire space with subtle front corners */}
       <path
-        d="M50 20
-           L80 50
-           L50 80
-           L20 50
+        d="M0 0
+           H70
+           L90 10
+           L90 90
+           L70 100
+           H0
+           V0
            Z"
-        className="fill-green-400"
+        className="fill-green-500"
       />
-      {/* Eyes */}
-      <circle cx="35" cy="40" r="5" className="fill-gray-800" />
-      <circle cx="65" cy="40" r="5" className="fill-gray-800" />
+      {/* Eyes - larger and more prominent */}
+      <circle cx="65" cy="25" r="6" className="fill-gray-800" />
+      <circle cx="65" cy="75" r="6" className="fill-gray-800" />
     </svg>
   );
 }
@@ -79,10 +81,10 @@ export default function GameBoard({
   // Helper to determine head rotation based on direction
   const getHeadRotation = (direction: Direction) => {
     switch (direction) {
-      case 'UP': return 'rotate-180';
-      case 'RIGHT': return '-rotate-90';
-      case 'DOWN': return 'rotate-0';
-      case 'LEFT': return 'rotate-90';
+      case 'UP': return '-rotate-90';    // Point upward
+      case 'RIGHT': return 'rotate-0';   // Point right (default)
+      case 'DOWN': return 'rotate-90';   // Point downward
+      case 'LEFT': return 'rotate-180';  // Point left
     }
   };
 
@@ -92,8 +94,6 @@ export default function GameBoard({
     if (snake[0].x === x && snake[0].y === y) {
       return `
         relative
-        bg-green-600 
-        transition-all duration-100
         ${getHeadRotation(snakeDirection)}
       `;
     }
@@ -103,9 +103,6 @@ export default function GameBoard({
     if (bodyIndex !== -1) {
       return `
         bg-green-500
-        border border-green-400/50
-        shadow-inner
-        transition-all duration-100
         ${getSegmentStyle(snake, bodyIndex)}
       `;
     }
@@ -113,7 +110,7 @@ export default function GameBoard({
     // Check if cell is food
     if (food.x === x && food.y === y) {
       return `
-        bg-red-500 rounded-full border border-red-400
+        bg-red-500 rounded-full
         animate-pulse
       `;
     }
