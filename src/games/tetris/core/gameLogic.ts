@@ -6,6 +6,7 @@ import { rotatePiece } from './rotation';
 
 export interface GameState {
   board: number[][];
+  boardColors: (string | null)[][];
   currentPiece: Piece;
   currentPosition: { x: number; y: number };
   nextPiece: Piece;
@@ -23,8 +24,13 @@ export function initializeGame(): GameState {
     Array(BOARD_WIDTH).fill(0)
   );
   
+  const boardColors = Array(BOARD_HEIGHT).fill(null).map(() => 
+    Array(BOARD_WIDTH).fill(null)
+  );
+  
   return {
     board,
+    boardColors,
     currentPiece: getRandomPiece(),
     currentPosition: { ...SPAWN_POSITION },
     nextPiece: getRandomPiece(),
@@ -99,6 +105,7 @@ export function moveDown(state: GameState): GameState {
 // Lock the current piece in place and generate a new one
 function lockPiece(state: GameState): GameState {
   const newBoard = state.board.map(row => [...row]);
+  const newBoardColors = state.boardColors.map(row => [...row]);
   
   // Place the piece on the board
   for (let y = 0; y < state.currentPiece.shape.length; y++) {
@@ -107,6 +114,7 @@ function lockPiece(state: GameState): GameState {
         const boardY = state.currentPosition.y + y;
         const boardX = state.currentPosition.x + x;
         newBoard[boardY][boardX] = 1;
+        newBoardColors[boardY][boardX] = state.currentPiece.color;
       }
     }
   }
@@ -125,6 +133,7 @@ function lockPiece(state: GameState): GameState {
     return {
       ...state,
       board: clearedBoard,
+      boardColors: newBoardColors,
       isGameOver: true
     };
   }
@@ -133,6 +142,7 @@ function lockPiece(state: GameState): GameState {
   return {
     ...state,
     board: clearedBoard,
+    boardColors: newBoardColors,
     currentPiece: state.nextPiece,
     currentPosition: { ...SPAWN_POSITION },
     nextPiece: getRandomPiece(),

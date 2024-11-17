@@ -18,7 +18,7 @@ export const PIECES: Record<PieceType, Piece> = {
       [0, 0, 0, 0],
       [0, 0, 0, 0],
     ],
-    color: '#60A5FA', // Blue
+    color: 'bg-cyan-600',
     rotation: 0
   },
   O: {
@@ -27,7 +27,7 @@ export const PIECES: Record<PieceType, Piece> = {
       [1, 1],
       [1, 1],
     ],
-    color: '#FBBF24', // Yellow
+    color: 'bg-yellow-500',
     rotation: 0
   },
   T: {
@@ -37,7 +37,7 @@ export const PIECES: Record<PieceType, Piece> = {
       [1, 1, 1],
       [0, 0, 0],
     ],
-    color: '#8B5CF6', // Purple
+    color: 'bg-purple-600',
     rotation: 0
   },
   S: {
@@ -47,7 +47,7 @@ export const PIECES: Record<PieceType, Piece> = {
       [1, 1, 0],
       [0, 0, 0],
     ],
-    color: '#34D399', // Green
+    color: 'bg-green-600',
     rotation: 0
   },
   Z: {
@@ -57,7 +57,7 @@ export const PIECES: Record<PieceType, Piece> = {
       [0, 1, 1],
       [0, 0, 0],
     ],
-    color: '#F87171', // Red
+    color: 'bg-red-600',
     rotation: 0
   },
   J: {
@@ -67,7 +67,7 @@ export const PIECES: Record<PieceType, Piece> = {
       [1, 1, 1],
       [0, 0, 0],
     ],
-    color: '#818CF8', // Indigo
+    color: 'bg-blue-600',
     rotation: 0
   },
   L: {
@@ -77,7 +77,7 @@ export const PIECES: Record<PieceType, Piece> = {
       [1, 1, 1],
       [0, 0, 0],
     ],
-    color: '#FB923C', // Orange
+    color: 'bg-orange-600',
     rotation: 0
   },
 };

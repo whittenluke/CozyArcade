@@ -4,6 +4,7 @@ import { BOARD_WIDTH, BOARD_HEIGHT } from '../core/constants';
 
 interface GameBoardProps {
   board: number[][];
+  boardColors: (string | null)[][];
   currentPiece: Piece;
   currentPosition: { x: number; y: number };
   isPaused: boolean;
@@ -13,13 +14,13 @@ interface GameBoardProps {
 
 export default function GameBoard({ 
   board, 
+  boardColors,
   currentPiece, 
   currentPosition, 
   isPaused, 
   isGameOver,
   onRestart 
 }: GameBoardProps) {
-  // Combine the board state with the current piece
   const displayBoard = useMemo(() => {
     const display = board.map(row => [...row]);
     
@@ -30,7 +31,7 @@ export default function GameBoard({
           const boardY = currentPosition.y + y;
           const boardX = currentPosition.x + x;
           if (boardY >= 0 && boardY < BOARD_HEIGHT && boardX >= 0 && boardX < BOARD_WIDTH) {
-            display[boardY][boardX] = 2; // Use 2 to differentiate active piece
+            display[boardY][boardX] = 2;
           }
         }
       }
@@ -39,15 +40,28 @@ export default function GameBoard({
     return display;
   }, [board, currentPiece, currentPosition]);
 
+  // Updated color getter
+  const getCellColor = (cell: number, y: number, x: number) => {
+    if (cell === 0) return '';
+    if (cell === 2) return currentPiece.color;
+    return boardColors[y][x] || '';
+  };
+
   return (
-    <div className="relative bg-gray-900 rounded-lg overflow-hidden shadow-lg">
-      {/* Game board grid */}
+    <div 
+      className="relative rounded-lg overflow-hidden shadow-lg"
+      style={{
+        backgroundImage: 'url("/images/games/tetris/wood-grain-bg.png")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      }}
+    >
       <div 
-        className="grid gap-px bg-gray-800"
         style={{
           gridTemplateColumns: `repeat(${BOARD_WIDTH}, minmax(0, 1fr))`,
           aspectRatio: `${BOARD_WIDTH}/${BOARD_HEIGHT}`,
-          padding: '1px'
+          display: 'grid',
+          gap: '1px'
         }}
       >
         {displayBoard.map((row, y) =>
@@ -55,10 +69,13 @@ export default function GameBoard({
             <div
               key={`${x}-${y}`}
               className={`
-                aspect-square rounded-sm
-                ${cell === 0 ? 'bg-gray-800' : 'bg-purple-500'}
-                ${cell === 2 ? 'bg-purple-400' : ''}
-                transition-colors duration-100
+                aspect-square relative
+                ${getCellColor(cell, y, x)}
+                ${cell !== 0 ? `
+                  border-t-2 border-r-2 border-white/20
+                  after:absolute after:inset-0 
+                  after:border-b-2 after:border-l-2 after:border-black/30
+                ` : ''}
               `}
             />
           ))

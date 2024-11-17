@@ -8,6 +8,7 @@ import { RefreshCw } from 'lucide-react';
 export default function TetrisGame() {
   const {
     board,
+    boardColors,
     currentPiece,
     currentPosition,
     nextPiece,
@@ -52,6 +53,7 @@ export default function TetrisGame() {
           <div className="w-[320px]">
             <GameBoard
               board={board}
+              boardColors={boardColors}
               currentPiece={currentPiece}
               currentPosition={currentPosition}
               isPaused={isPaused}
