@@ -17,7 +17,7 @@ export function useGameState() {
 
   // Reset game
   const startGame = useCallback(() => {
-    setGameState(state => ({
+    setGameState(() => ({
       ...initializeGame(),
       state: GameState.PLAYING
     }));
