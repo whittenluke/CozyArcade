@@ -13,12 +13,55 @@ import {
 import { db } from './firebase';
 import type { Game, GameSession } from '../types/database';
 
+const TEST_GAMES: Game[] = [
+  {
+    id: 'tetris',
+    title: 'Tetris',
+    description: 'Classic block-stacking puzzle game. Arrange falling pieces to create and clear complete lines.',
+    type: 'tetris',
+    imageUrl: '/images/games/tetris/cozytetris.jpg',
+    config: {
+      difficulty: 'medium'
+    },
+    stats: {
+      totalPlays: 1234,
+      highScore: 99999
+    }
+  },
+  {
+    id: 'snake',
+    title: 'Snake',
+    description: 'Guide the snake to collect food and grow longer without hitting walls or yourself.',
+    type: 'snake',
+    imageUrl: '/images/games/snake/cozysnake.jpg',
+    config: {
+      difficulty: 'easy'
+    },
+    stats: {
+      totalPlays: 2345,
+      highScore: 500
+    }
+  },
+  {
+    id: 'match3',
+    title: 'Match 3',
+    description: 'Connect three or more similar items to score points in this relaxing puzzle game.',
+    type: 'match3',
+    imageUrl: '/images/games/match3/cozymatch3.jpg',
+    config: {
+      difficulty: 'easy'
+    },
+    stats: {
+      totalPlays: 3456,
+      highScore: 75000
+    }
+  }
+];
+
 // Games API
 export const gamesApi = {
   async getAll(): Promise<Game[]> {
-    const gamesRef = collection(db, 'games');
-    const snapshot = await getDocs(gamesRef);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Game));
+    return TEST_GAMES;
   },
 
   async getById(id: string): Promise<Game | null> {
