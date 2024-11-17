@@ -1,9 +1,35 @@
 import { RefreshCw } from 'lucide-react';
 import { BOARD_WIDTH, BOARD_HEIGHT } from '../core/constants';
 import type { Position } from '../core/gameLogic';
+import type { Direction } from '../core/constants';
+
+// Snake head SVG as a component
+function SnakeHead() {
+  return (
+    <svg
+      viewBox="0 0 100 100"
+      className="absolute inset-0 w-full h-full"
+      fill="currentColor"
+    >
+      {/* Main head shape */}
+      <path
+        d="M50 20
+           L80 50
+           L50 80
+           L20 50
+           Z"
+        className="fill-green-400"
+      />
+      {/* Eyes */}
+      <circle cx="35" cy="40" r="5" className="fill-gray-800" />
+      <circle cx="65" cy="40" r="5" className="fill-gray-800" />
+    </svg>
+  );
+}
 
 interface GameBoardProps {
   snake: Position[];
+  snakeDirection: Direction;
   food: Position;
   isPaused: boolean;
   isGameOver: boolean;
@@ -12,16 +38,32 @@ interface GameBoardProps {
 
 export default function GameBoard({ 
   snake, 
+  snakeDirection,
   food, 
   isPaused, 
   isGameOver,
   onRestart 
 }: GameBoardProps) {
+  // Helper to determine head rotation based on direction
+  const getHeadRotation = (direction: Direction) => {
+    switch (direction) {
+      case 'UP': return 'rotate-180';
+      case 'RIGHT': return '-rotate-90';
+      case 'DOWN': return 'rotate-0';
+      case 'LEFT': return 'rotate-90';
+    }
+  };
+
   // Helper to determine cell content and styling
   const getCellContent = (x: number, y: number) => {
     // Check if cell is snake head
     if (snake[0].x === x && snake[0].y === y) {
-      return "bg-green-600 rounded-full border-2 border-green-400";
+      return `
+        relative
+        bg-green-600 
+        transition-all duration-100
+        ${getHeadRotation(snakeDirection)}
+      `;
     }
     // Check if cell is snake body
     if (snake.slice(1).some(segment => segment.x === x && segment.y === y)) {
@@ -29,11 +71,16 @@ export default function GameBoard({
     }
     // Check if cell is food
     if (food.x === x && food.y === y) {
-      return "bg-red-500 rounded-full border border-red-400";
+      return `
+        bg-red-500 rounded-full border border-red-400
+        animate-pulse
+      `;
     }
     // Empty cell
     return "bg-gray-800";
   };
+
+  const isHead = (x: number, y: number) => snake[0].x === x && snake[0].y === y;
 
   return (
     <div 
@@ -57,10 +104,13 @@ export default function GameBoard({
               key={`${x}-${y}`}
               className={`
                 aspect-square
+                relative
                 ${getCellContent(x, y)}
-                transition-colors duration-100
+                transition-all duration-100
               `}
-            />
+            >
+              {isHead(x, y) && <SnakeHead />}
+            </div>
           ))
         )}
       </div>

@@ -43,6 +43,7 @@ export default function SnakeGame() {
             <div className="w-[320px] sm:w-[400px] shrink-0">
               <GameBoard
                 snake={snake.body}
+                snakeDirection={snake.direction}
                 food={food}
                 isPaused={isPaused}
                 isGameOver={state === 'gameOver'}
