@@ -4,6 +4,7 @@ import { useGameLoop } from './useGameLoop';
 import { useInput } from './useInput';
 import { useAuth } from '../../../contexts/AuthContext';
 import { gameSessionsApi } from '../../../lib/api';
+import { CONTROLS } from '../core/constants';
 
 export function useGameState() {
   const [gameState, setGameState] = useState<GameState>(initializeGame());
@@ -12,8 +13,15 @@ export function useGameState() {
   const { user } = useAuth();
 
   // Handle game actions
-  const handleInput = useCallback((input: string) => {
+  const handleInput = useCallback((input: keyof typeof CONTROLS) => {
     if (gameState.isGameOver) return;
+
+    if (input === 'PAUSE') {
+      setIsPaused(p => !p);
+      return;
+    }
+
+    if (isPaused) return;
 
     setGameState(current => {
       switch (input) {
@@ -30,14 +38,11 @@ export function useGameState() {
           return rotate(current, false) || current;
         case 'HOLD':
           return holdPiece(current) || current;
-        case 'PAUSE':
-          setIsPaused(p => !p);
-          return current;
         default:
           return current;
       }
     });
-  }, [gameState.isGameOver]);
+  }, [gameState.isGameOver, isPaused]);
 
   // Handle key release
   useEffect(() => {

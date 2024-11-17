@@ -9,6 +9,7 @@ import Games from './pages/Games';
 import SignIn from './components/auth/SignIn';
 import SignUp from './components/auth/SignUp';
 import Profile from './pages/Profile';
+import TetrisGame from './games/tetris/components/TetrisGame';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<Hero />} />
                 <Route path="/games" element={<Games />} />
+                <Route path="/games/tetris" element={<TetrisGame />} />
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/signup" element={<SignUp />} />
                 <Route 
