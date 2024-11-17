@@ -4,13 +4,26 @@ import type { Position } from '../core/gameLogic';
 import type { Direction } from '../core/constants';
 
 // Snake head SVG as a component
-function SnakeHead() {
+function SnakeHead({ direction }: { direction: Direction }) {
+  // Calculate rotation angle based on direction
+  const getRotationAngle = (dir: Direction) => {
+    switch (dir) {
+      case 'UP': return -90;
+      case 'RIGHT': return 0;
+      case 'DOWN': return 90;
+      case 'LEFT': return 180;
+    }
+  };
+
   return (
     <svg
       viewBox="0 0 100 100"
       className="absolute inset-0 w-full h-full"
+      style={{
+        transform: `rotate(${getRotationAngle(direction)}deg)`,
+        transformOrigin: 'center'
+      }}
     >
-      {/* Main head shape - fills the entire space with subtle front corners */}
       <path
         d="M0 0
            H70
@@ -22,7 +35,6 @@ function SnakeHead() {
            Z"
         className="fill-green-500"
       />
-      {/* Eyes - larger and more prominent */}
       <circle cx="65" cy="25" r="6" className="fill-gray-800" />
       <circle cx="65" cy="75" r="6" className="fill-gray-800" />
     </svg>
@@ -41,120 +53,81 @@ interface GameBoardProps {
   onStartGame: () => void;
 }
 
-function getSegmentStyle(snake: Position[], index: number) {
-  if (index === 0) return ''; // Head has its own styling
-
-  const prev = snake[index - 1];
-  const curr = snake[index];
-  const next = snake[index + 1];
-
-  // Calculate which directions have connections
-  const connections = {
-    top: prev && (prev.y < curr.y || (prev.y === BOARD_HEIGHT - 1 && curr.y === 0)),
-    right: prev && (prev.x > curr.x || (prev.x === 0 && curr.x === BOARD_WIDTH - 1)),
-    bottom: prev && (prev.y > curr.y || (prev.y === 0 && curr.y === BOARD_HEIGHT - 1)),
-    left: prev && (prev.x < curr.x || (prev.x === BOARD_WIDTH - 1 && curr.x === 0)),
-  };
-
-  if (next) {
-    if (next.y < curr.y || (next.y === BOARD_HEIGHT - 1 && curr.y === 0)) connections.top = true;
-    if (next.x > curr.x || (next.x === 0 && curr.x === BOARD_WIDTH - 1)) connections.right = true;
-    if (next.y > curr.y || (next.y === 0 && curr.y === BOARD_HEIGHT - 1)) connections.bottom = true;
-    if (next.x < curr.x || (next.x === BOARD_WIDTH - 1 && curr.x === 0)) connections.left = true;
-  }
-
-  // Simplified segment styling - remove size modifications
-  return 'rounded-sm';
-}
-
 export default function GameBoard({ 
   snake, 
   snakeDirection,
   food, 
-  isPaused, 
+  isPaused,
   isGameOver,
   state,
   countdown,
   onRestart,
   onStartGame
 }: GameBoardProps) {
-  // Helper to determine head rotation based on direction
-  const getHeadRotation = (direction: Direction) => {
-    switch (direction) {
-      case 'UP': return '-rotate-90';    // Point upward
-      case 'RIGHT': return 'rotate-0';   // Point right (default)
-      case 'DOWN': return 'rotate-90';   // Point downward
-      case 'LEFT': return 'rotate-180';  // Point left
-    }
-  };
+  const CELL_SIZE = 20; // Size of each cell in pixels
 
-  // Helper to determine cell content and styling
-  const getCellContent = (x: number, y: number) => {
-    // Check if cell is snake head
-    if (snake[0].x === x && snake[0].y === y) {
-      return `
-        relative
-        ${getHeadRotation(snakeDirection)}
-      `;
-    }
-
-    // Check if cell is snake body
-    const bodyIndex = snake.findIndex((segment, i) => i > 0 && segment.x === x && segment.y === y);
-    if (bodyIndex !== -1) {
-      return `
-        bg-green-500
-        ${getSegmentStyle(snake, bodyIndex)}
-      `;
-    }
-
-    // Check if cell is food
-    if (food.x === x && food.y === y) {
-      return `
-        bg-red-500 rounded-full
-        animate-pulse
-      `;
-    }
-
-    // Empty cell
-    return "bg-gray-800";
-  };
-
-  const isHead = (x: number, y: number) => snake[0].x === x && snake[0].y === y;
+  // Helper to get pixel position
+  const getPixelPosition = (pos: Position) => ({
+    x: pos.x * CELL_SIZE,
+    y: pos.y * CELL_SIZE
+  });
 
   return (
     <div 
-      className="relative rounded-lg overflow-hidden shadow-lg"
+      className="relative rounded-lg overflow-hidden shadow-lg bg-gray-800"
       style={{
-        backgroundImage: 'url("/images/games/snake/grass-pattern.png")',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center'
+        width: BOARD_WIDTH * CELL_SIZE,
+        height: BOARD_HEIGHT * CELL_SIZE
       }}
     >
-      <div 
-        className="grid gap-0 bg-gray-900/10"
-        style={{
-          gridTemplateColumns: `repeat(${BOARD_WIDTH}, minmax(0, 1fr))`,
-          aspectRatio: `${BOARD_WIDTH}/${BOARD_HEIGHT}`,
-          isolation: 'isolate'
-        }}
-      >
-        {Array.from({ length: BOARD_HEIGHT }, (_, y) =>
-          Array.from({ length: BOARD_WIDTH }, (_, x) => (
-            <div
-              key={`${x}-${y}`}
-              className={`
-                aspect-square
-                relative
-                border-[0.5px] border-gray-900/10
-                ${getCellContent(x, y)}
-                transform-gpu
-              `}
-            >
-              {isHead(x, y) && <SnakeHead />}
-            </div>
-          ))
-        )}
+      {/* Grid background */}
+      <div className="absolute inset-0 grid grid-cols-20 grid-rows-20 gap-[1px] pointer-events-none">
+        {Array.from({ length: BOARD_WIDTH * BOARD_HEIGHT }).map((_, i) => (
+          <div key={i} className="bg-gray-900/10" />
+        ))}
       </div>
+
+      {/* Snake body segments */}
+      {snake.slice(1).map((segment, index) => {
+        const { x, y } = getPixelPosition(segment);
+        return (
+          <div
+            key={index}
+            className="absolute w-[20px] h-[20px] bg-green-500 transition-all duration-200 ease-linear"
+            style={{
+              transform: `translate(${x}px, ${y}px)`
+            }}
+          />
+        );
+      })}
+
+      {/* Snake head */}
+      {(() => {
+        const { x, y } = getPixelPosition(snake[0]);
+        return (
+          <div
+            className="absolute w-[20px] h-[20px] transition-all duration-200 ease-linear"
+            style={{
+              transform: `translate(${x}px, ${y}px)`
+            }}
+          >
+            <SnakeHead direction={snakeDirection} />
+          </div>
+        );
+      })()}
+
+      {/* Food */}
+      {(() => {
+        const { x, y } = getPixelPosition(food);
+        return (
+          <div
+            className="absolute w-[20px] h-[20px] bg-red-500 rounded-full animate-pulse"
+            style={{
+              transform: `translate(${x}px, ${y}px)`
+            }}
+          />
+        );
+      })()}
 
       {/* Start Game / Countdown Overlay */}
       {state === GameState.READY && (
@@ -177,21 +150,28 @@ export default function GameBoard({
         </div>
       )}
 
-      {/* Overlay states */}
-      {(isPaused || isGameOver) && (
+      {/* Game Over overlay */}
+      {isGameOver && (
         <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center">
           <div className="text-white text-2xl font-bold mb-4">
-            {isPaused ? 'PAUSED' : 'GAME OVER'}
+            GAME OVER
           </div>
-          {isGameOver && (
-            <button
-              onClick={onRestart}
-              className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
-            >
-              <RefreshCw className="w-5 h-5" />
-              Play Again
-            </button>
-          )}
+          <button
+            onClick={onRestart}
+            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+          >
+            <RefreshCw className="w-5 h-5" />
+            Play Again
+          </button>
+        </div>
+      )}
+
+      {/* Pause overlay */}
+      {isPaused && !isGameOver && (
+        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+          <div className="text-white text-2xl font-bold">
+            PAUSED
+          </div>
         </div>
       )}
     </div>

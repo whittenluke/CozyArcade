@@ -5,7 +5,7 @@ export const BOARD_HEIGHT = 20;
 // Game speeds (in ms)
 export const SPEEDS = {
   INITIAL: 200,
-  MIN_SPEED: 50,  // Maximum speed (minimum interval)
+  MIN_SPEED: 100,  // Slower minimum speed for smoother movement
   SPEED_DECREASE: 5  // ms to decrease per food eaten
 } as const;
 

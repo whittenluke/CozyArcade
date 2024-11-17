@@ -9,16 +9,23 @@ interface GameLoopOptions {
 export function useGameLoop({ onTick, speed, isPlaying }: GameLoopOptions) {
   const frameRef = useRef<number>();
   const lastTickRef = useRef<number>(0);
+  const lastFrameTimeRef = useRef<number>(0);
 
   const tick = useCallback((timestamp: number) => {
-    if (!lastTickRef.current) lastTickRef.current = timestamp;
+    if (!lastTickRef.current) {
+      lastTickRef.current = timestamp;
+      lastFrameTimeRef.current = timestamp;
+    }
 
     const elapsed = timestamp - lastTickRef.current;
 
-    if (elapsed > speed) {
+    // Update game state at fixed intervals
+    if (elapsed >= speed) {
       onTick();
-      lastTickRef.current = timestamp;
+      lastTickRef.current = timestamp - (elapsed % speed); // Maintain timing accuracy
     }
+
+    lastFrameTimeRef.current = timestamp;
 
     if (isPlaying) {
       frameRef.current = requestAnimationFrame(tick);

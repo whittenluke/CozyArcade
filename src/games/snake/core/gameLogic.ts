@@ -36,19 +36,27 @@ function createRandomFood(snake: Position[]): Position {
 function getNextPosition(current: Position, direction: Direction): Position {
   switch (direction) {
     case 'UP':
-      return { x: current.x, y: (current.y - 1 + BOARD_HEIGHT) % BOARD_HEIGHT };
+      return { x: current.x, y: current.y - 1 };
     case 'DOWN':
-      return { x: current.x, y: (current.y + 1) % BOARD_HEIGHT };
+      return { x: current.x, y: current.y + 1 };
     case 'LEFT':
-      return { x: (current.x - 1 + BOARD_WIDTH) % BOARD_WIDTH, y: current.y };
+      return { x: current.x - 1, y: current.y };
     case 'RIGHT':
-      return { x: (current.x + 1) % BOARD_WIDTH, y: current.y };
+      return { x: current.x + 1, y: current.y };
   }
 }
 
 function checkCollision(position: Position, snake: Position[]): boolean {
+  if (
+    position.x < 0 || 
+    position.x >= BOARD_WIDTH || 
+    position.y < 0 || 
+    position.y >= BOARD_HEIGHT
+  ) {
+    return true;
+  }
+  
   return snake.some((segment, index) => 
-    // Skip head for self-collision check
     index > 0 && segment.x === position.x && segment.y === position.y
   );
 }
