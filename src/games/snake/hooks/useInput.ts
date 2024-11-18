@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { CONTROLS } from '../core/constants';
 import type { Direction } from '../core/constants';
 
@@ -10,7 +10,15 @@ interface InputHandlers {
   onPause: () => void;
 }
 
+interface TouchPosition {
+  x: number;
+  y: number;
+}
+
 export function useInput({ onDirectionChange, onPause }: InputHandlers, isEnabled: boolean = true) {
+  const touchStartRef = useRef<TouchPosition | null>(null);
+  const minSwipeDistance = 30; // minimum distance for a swipe
+
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       const code = event.code;
@@ -59,8 +67,64 @@ export function useInput({ onDirectionChange, onPause }: InputHandlers, isEnable
     [onDirectionChange, onPause, isEnabled]
   );
 
+  // Touch controls
+  const handleTouchStart = useCallback((event: TouchEvent) => {
+    if (!isEnabled) return;
+    
+    // Prevent default to stop page scrolling/pulling
+    event.preventDefault();
+    
+    const touch = event.touches[0];
+    touchStartRef.current = {
+      x: touch.clientX,
+      y: touch.clientY
+    };
+  }, [isEnabled]);
+
+  const handleTouchMove = useCallback((event: TouchEvent) => {
+    // Prevent default to stop page scrolling/pulling
+    event.preventDefault();
+  }, []);
+
+  const handleTouchEnd = useCallback((event: TouchEvent) => {
+    if (!isEnabled || !touchStartRef.current) return;
+
+    // Prevent default to stop page scrolling/pulling
+    event.preventDefault();
+
+    const touch = event.changedTouches[0];
+    const deltaX = touch.clientX - touchStartRef.current.x;
+    const deltaY = touch.clientY - touchStartRef.current.y;
+    
+    // Only handle if movement is greater than minimum distance
+    if (Math.abs(deltaX) < minSwipeDistance && Math.abs(deltaY) < minSwipeDistance) {
+      return;
+    }
+
+    // Determine swipe direction
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      // Horizontal swipe
+      onDirectionChange(deltaX > 0 ? 'RIGHT' : 'LEFT');
+    } else {
+      // Vertical swipe
+      onDirectionChange(deltaY > 0 ? 'DOWN' : 'UP');
+    }
+
+    touchStartRef.current = null;
+  }, [isEnabled, onDirectionChange]);
+
+  // Set up event listeners
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleKeyDown]);
+    window.addEventListener('touchstart', handleTouchStart, { passive: false });
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+    window.addEventListener('touchend', handleTouchEnd, { passive: false });
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [handleKeyDown, handleTouchStart, handleTouchMove, handleTouchEnd]);
 }

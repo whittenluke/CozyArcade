@@ -23,47 +23,49 @@ export default function SnakeGame() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-900 py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8">
+    <div className="min-h-screen bg-gray-900 py-4 px-2 sm:py-6 sm:px-4">
+      <div className="max-w-lg mx-auto">
+        <div className="text-center mb-4">
           <div className="flex items-center justify-center gap-4">
-            <h1 className="text-3xl font-bold text-white">Cozy Snake</h1>
+            <h1 className="text-xl sm:text-3xl font-bold text-white">Cozy Snake</h1>
             <button
               onClick={startGame}
               className="p-2 rounded-full hover:bg-gray-800 transition-colors"
               title="Restart Game"
             >
-              <RefreshCw className="w-6 h-6 text-gray-400 hover:text-purple-400" />
+              <RefreshCw className="w-5 h-5 text-gray-400 hover:text-purple-400" />
             </button>
           </div>
-          <p className="mt-2 text-gray-400">Use arrow keys or WASD to play</p>
+          <p className="mt-2 text-gray-400 text-sm">
+            {window.matchMedia('(pointer: coarse)').matches 
+              ? 'Swipe to control the snake'
+              : 'Use arrow keys or WASD to play'}
+          </p>
         </div>
 
-        <div className="max-w-[600px] mx-auto">
-          <div className="flex justify-center gap-4 sm:gap-8">
-            {/* Game board */}
-            <div className="w-[320px] sm:w-[400px] shrink-0">
-              <GameBoard
-                snake={snake.body}
-                snakeDirection={snake.direction}
-                food={food}
-                isPaused={isPaused}
-                isGameOver={state === 'gameOver'}
-                state={state}
-                countdown={countdown}
-                onRestart={startGame}
-                onStartGame={handleStartGame}
-              />
-            </div>
+        <div className="flex flex-col items-center gap-4">
+          {/* Game board - scales with screen size */}
+          <div className="w-full max-w-[min(90vw,400px)] aspect-square">
+            <GameBoard
+              snake={snake.body}
+              snakeDirection={snake.direction}
+              food={food}
+              isPaused={isPaused}
+              isGameOver={state === 'gameOver'}
+              state={state}
+              countdown={countdown}
+              onRestart={startGame}
+              onStartGame={handleStartGame}
+            />
+          </div>
 
-            {/* Score panel */}
-            <div className="w-[120px] sm:w-32 shrink-0">
-              <ScorePanel
-                score={score}
-                speed={speed}
-                length={snake.body.length}
-              />
-            </div>
+          {/* Score panel - full width on mobile */}
+          <div className="w-full max-w-[min(90vw,400px)] sm:w-32">
+            <ScorePanel
+              score={score}
+              speed={speed}
+              length={snake.body.length}
+            />
           </div>
         </div>
       </div>
